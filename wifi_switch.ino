@@ -9,17 +9,19 @@ const char* password ="bhanu128";
 ESP8266WebServer server(80);
 
 void setup(){
-  Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  delay(1000);
-  Serial.print("Connecting to ");
-  Serial.println(WiFi.SSID());
-  Serial.println("Connecting");
-  
 
-    while(WiFi.status() != WL_CONNECTED){
+  // Serial.begin(115200);
+  pinMode(1,OUTPUT);
+
+
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to "); Serial.println(WiFi.SSID());
+
+  Serial.print("Connecting");
+  while(WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(1000);
+  
   }
 
   if(WiFi.status() == WL_CONNECTED){
@@ -27,18 +29,21 @@ void setup(){
     Serial.println(WiFi.SSID() );
     Serial.print("IP Address :\t");
     Serial.println(WiFi.localIP());
-  }
+
+    }
 
   if(MDNS.begin("Esp8266")){
     Serial.println("mDNS Responder Started");
-  }
-  else{
+  }else{
     Serial.println(" Error mDNS Responder!"); 
   }
 
   server.on("/",handleRoot);
   server.on("/ram",greet);
-  
+
+  server.on("/on",turnOn);
+  server.on("/off",turnOff);
+
   server.onNotFound(handleNotFound);
 
   server.begin();
@@ -60,4 +65,14 @@ void handleNotFound(){
 
 void greet(){
   server.send(200,"text/plain","JAI SHREE RAM");
+  
+}
+void turnOff(){
+  server.send(200,"text/plain","LED TURNED OFF");
+  digitalWrite(1, HIGH);   // LED OFF
+}
+
+void turnOn(){
+  server.send(200,"text/plain","LED TURNED ON");
+  digitalWrite(1, LOW);    // LED ON
 }
